@@ -6,10 +6,11 @@ install cpanm:
 $ brew install cpanminus
 ```
 
-install [Acme::Nyaa](http://blog.azumakuniyuki.org/2013/02/my-first-perl-module-acmenyaa.html):
+install dependencies:
 
 ```
 $ cpanm install Acme::Nyaa
+$ cpanm install Net::Twitter
 ```
 
 write to .zshrc:
