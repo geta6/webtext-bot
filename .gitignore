@@ -1,0 +1,17 @@
+*~
+.DS_Store
+.Apple*
+
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+**/*.xcodeproj/*
+!**/*.xcodeproj/project.pbxproj
+!*.xcodeproj/default.*
+!**/*.xcodeproj/default.*
+
+*sublime*
+.DS_Store
+.tags*
+/.rbenv-version
+
+node_modules
