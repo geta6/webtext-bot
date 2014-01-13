@@ -41,26 +41,74 @@ my $nt = Net::Twitter::Lite::WithAPIv1_1->new(
 # search
 
 # 生協情報
-my $r = $nt->search({q => 'SFC 生協', lang => 'ja', count => 100, include_rts => 'false'});
-my $statuses = $r->{'statuses'};
 
-for my $status (@$statuses) {
-  my $text = $status->{text};
-  unless ($text =~ m/\ART\s/) {
-    if ( $text =~ m/[割閉休円]/ ) {
-      my $neko = $text;
-      $neko =~ s/\.\.*//g;
-      $neko =~ s/\(.*?\)//g;
-      $neko =~ s/【.*?】//g;
-      $neko =~ s/\A[@＠].*?[ 　]//g;
-      $neko = $nyaa->cat($neko);
-      print "$status->{created_at} <$status->{user}{screen_name}> $neko\n";
+&find('生協', sub {
+  return $_[0]->{text} =~ m/[割閉休円]/;
+});
+
+# 臭気情報
+
+&find('臭', sub {
+  unless ($_[0]->{user}{screen_name} =~ m/(akasakusai|sfc_bad_smells)/) {
+    unless ($_[0]->{text} =~ m/名作/ ) {
+      return 1;
+    }
+  }
+  return 0;
+});
+
+# メディア
+
+&find('メディア', sub {
+  return 1;
+});
+
+# 残留情報
+
+&find('残留', sub {
+  return 1;
+});
+
+
+sub find {
+  my $r = $nt->search({q => 'SFC '.$_[0], lang => 'ja', count => 200});
+  my $statuses = $r->{'statuses'};
+  for my $status (@$statuses) {
+    my $neko = $status->{text};
+    unless ($neko =~ m/\ART\s/
+      || $neko =~ m/https*:\/\//
+      || $neko =~ m/拡散/
+      || $neko =~ m/#/
+      ) {
+      if (0 < $_[1]($status)) {
+        &neko($neko);
+      }
     }
   }
 }
 
-# 生協情報
+sub neko {
+  my $neko = $_[0];
+  $neko =~ s/[…*]/。/g;
+  $neko =~ s/\.\.*//g;
+  $neko =~ s/\(.*?\)//g;
+  $neko =~ s/（(.*?)）/。（$1）/g;
+  $neko =~ s/【.*?】//g;
+  $neko =~ s/\A[@＠].*?[ 　]//g;
+  $neko =~ s/@[a-zA-Z_]+?[ 　]//g;
+  $neko =~ s/神々/ネコ〻/g;
+  $neko =~ s/神/ネコ/g;
+  $neko = $nyaa->cat(&trim($neko));
+  print "--\n$neko\n";
+}
 
+sub trim {
+  my $trim = shift;
+  my $Znsp = '　';
+  $trim =~ s/^(?:\s|$Znsp)+//o;
+  $trim =~ s/^(.*?)(?:\s|$Znsp)+$/$1/o;
+  return $trim;
+}
 
 exit;
 
