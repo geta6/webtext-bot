@@ -260,7 +260,7 @@ sub neco {
   $word =~ s/【.*?】//g;
   $word =~ s/＾＾//g;
   $word =~ s/\A[@＠].*?[ 　]//g;
-  $word =~ s/@[a-zA-Z_]+?[ 　]//g;
+  $word =~ s/@[a-zA-Z0-9_]+?[ 　]//g;
   $word = $self->{ny}->cat($self->trim($word));
   $word =~ s/神々/ネコネコ/g;
   $word =~ s/神/ネコ/g;
@@ -291,10 +291,24 @@ sub subscript {
   for my $status (@$statuses) {
     if ($self->tw_unchecked('f', $status)) {
       if ($self->tw_suitable($status->{text})) {
+        if ($status->{text} =~ m/\A\@team061/) {
+          my $nb = "ー"x(1 + int(rand(5)));
+          my $ex = "!"x(1 + int(rand(3)));
+          my $body = '';
+          if (rand() % 2) {
+            $body = '@' . $status->{user}{screen_name} . ' マ' . $nb . 'オ' . $ex;
+          } else {
+            $body = '@' . $status->{user}{screen_name} . ' ニャ' . $nb . $ex;
+          }
+          $self->{nt}->update(decode_utf8($body));
+        }
         my $word = $status->{text};
         $word =~ s/@[a-zA-Z_]+?[ 　]//g;
         $self->write_talk($word);
         $self->tm_subscript($word);
+        if (0 == rand(10)) {
+          $self->{nt}->create_favorite($status->{id});
+        }
       }
       $self->tw_check('f', $status->{id_str});
     }
@@ -340,8 +354,7 @@ sub find {
           $text =~ s/@[a-zA-Z_]+?[ 　]//g;
           $self->write_talk($text);
           $self->tm_subscript($text);
-          $self->{nt}->update(decode_utf8($neco));
-          # print decode_utf8($self->neco($neco)) . "\n";
+          $self->{nt}->update(decode_utf8($self->neco($neco)));
         }
       }
     }
