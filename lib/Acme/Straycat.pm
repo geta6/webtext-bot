@@ -1,4 +1,4 @@
-package Acme::SFCat;
+package Acme::Straycat;
 
 use strict;
 use warnings;
@@ -258,14 +258,16 @@ sub neco {
   $word =~ s/\(.*?\)//g;
   $word =~ s/（(.*?)）/。（$1）/g;
   $word =~ s/【.*?】//g;
+  $word =~ s/[（）『』「」“]//g;
   $word =~ s/＾＾//g;
   $word =~ s/\A[@＠].*?[ 　]//g;
-  $word =~ s/@[a-zA-Z0-9_]+?[ 　]//g;
-  $word = $self->{ny}->cat($self->trim($word));
+  $word =~ s/@[a-zA-Z0-9_]+//g;
   $word =~ s/神々/ネコネコ/g;
   $word =~ s/神/ネコ/g;
+  $word =~ s/ｗ//g;
   $word =~ s/[私僕俺]/ニャー/g;
   $word =~ s/[殺死]/○/g;
+  $word = $self->{ny}->cat($self->trim($word));
   return $word;
 }
 
@@ -279,9 +281,10 @@ sub say {
     $sentence .= $word;
     @next = split(",", $dict->{$word});
   }
-  my $neco = $self->neco($self->unescape($sentence));
-  $self->{nt}->update(decode_utf8($neco));
-  return $neco;
+  if (20 >= length($sentence)) {
+    my $neco = $self->neco($self->unescape($sentence));
+    $self->{nt}->update(decode_utf8($neco));
+  }
 }
 
 sub subscript {
@@ -292,13 +295,17 @@ sub subscript {
     if ($self->tw_unchecked('f', $status)) {
       if ($self->tw_suitable($status->{text})) {
         if ($status->{text} =~ m/\A\@team061/) {
-          my $nb = "ー"x(1 + int(rand(5)));
-          my $ex = "!"x(1 + int(rand(3)));
           my $body = '';
-          if (rand() % 2) {
-            $body = '@' . $status->{user}{screen_name} . ' マ' . $nb . 'オ' . $ex;
+          if ($status->{text} =~ m/にゃんぱす/) {
+            $body =  '@' . $status->{user}{screen_name} . 'にゃんぱすー';
           } else {
-            $body = '@' . $status->{user}{screen_name} . ' ニャ' . $nb . $ex;
+            my $nb = "ー"x(1 + int(rand(5)));
+            my $ex = "!"x(1 + int(rand(3)));
+            if (rand() % 2) {
+              $body = '@' . $status->{user}{screen_name} . ' マ' . $nb . 'オ' . $ex;
+            } else {
+              $body = '@' . $status->{user}{screen_name} . ' ニャ' . $nb . $ex;
+            }
           }
           $self->{nt}->update(decode_utf8($body));
         }
@@ -306,7 +313,7 @@ sub subscript {
         $word =~ s/@[a-zA-Z_]+?[ 　]//g;
         $self->write_talk($word);
         $self->tm_subscript($word);
-        if (0 == rand(10)) {
+        if (2 == int(rand(18))) {
           $self->{nt}->create_favorite($status->{id});
         }
       }
