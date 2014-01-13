@@ -15,3 +15,5 @@
 /.rbenv-version
 
 node_modules
+local
+tmp
