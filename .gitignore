@@ -18,3 +18,4 @@ node_modules
 local
 data
 tmp
+./data/straycat.yml

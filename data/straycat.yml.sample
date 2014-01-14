@@ -1,0 +1,10 @@
+---
+path:
+  data: straycat.dat
+  dict: straycat.dic
+  talk: straycat.log
+oauth:
+  consumer_key: # CONSUMER KEY
+  consumer_secret: # CONSUMER SECRET
+  token: # AUTHENTICITY TOKEN
+  token_secret: # AUTHENTICITY TOKEN SECRET
