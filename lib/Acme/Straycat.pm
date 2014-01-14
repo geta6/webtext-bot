@@ -287,6 +287,45 @@ sub say {
   }
 }
 
+sub reply {
+  my $self = shift;
+  my $status = shift;
+  if ($status->{text} =~ m/\A\@team061/) {
+    my $body = '';
+    if ($status->{text} =~ m/にゃんぱす/) {
+      $body =  '@' . $status->{user}{screen_name} . 'にゃんぱすー';
+    } else {
+      my $nb = "ー"x(1 + int(rand(5)));
+      my $ex = "!"x(1 + int(rand(3)));
+      if (rand() % 2) {
+        $body = '@' . $status->{user}{screen_name} . ' マ' . $nb . 'オ' . $ex;
+      } else {
+        $body = '@' . $status->{user}{screen_name} . ' ニャ' . $nb . $ex;
+      }
+    }
+    $self->{nt}->update(decode_utf8($body));
+  }
+  my $word = $status->{text};
+  $word =~ s/@[a-zA-Z_]+?[ 　]//g;
+  $self->write_talk($word);
+  $self->tm_subscript($word);
+}
+
+sub response {
+  my $self = shift;
+  my $word = shift;
+  my $r = $self->{nt}->mentions();
+  #my $statuses = $r->{'statuses'};
+  print Dumper @$r;
+  for my $status (@$r) {
+    my $neco = $status->{text};
+    if ($self->tw_unchecked('f', $status)) {
+      $self->reply($status);
+      $self->tw_check('f', $status->{id_str});
+    }
+  }
+}
+
 sub subscript {
   # Study from Home TL
   my $self = shift;
@@ -294,25 +333,7 @@ sub subscript {
   for my $status (@$statuses) {
     if ($self->tw_unchecked('f', $status)) {
       if ($self->tw_suitable($status->{text})) {
-        if ($status->{text} =~ m/\A\@team061/) {
-          my $body = '';
-          if ($status->{text} =~ m/にゃんぱす/) {
-            $body =  '@' . $status->{user}{screen_name} . 'にゃんぱすー';
-          } else {
-            my $nb = "ー"x(1 + int(rand(5)));
-            my $ex = "!"x(1 + int(rand(3)));
-            if (rand() % 2) {
-              $body = '@' . $status->{user}{screen_name} . ' マ' . $nb . 'オ' . $ex;
-            } else {
-              $body = '@' . $status->{user}{screen_name} . ' ニャ' . $nb . $ex;
-            }
-          }
-          $self->{nt}->update(decode_utf8($body));
-        }
-        my $word = $status->{text};
-        $word =~ s/@[a-zA-Z_]+?[ 　]//g;
-        $self->write_talk($word);
-        $self->tm_subscript($word);
+        $self->reply($status);
         if (2 == int(rand(18))) {
           $self->{nt}->create_favorite($status->{id});
         }
