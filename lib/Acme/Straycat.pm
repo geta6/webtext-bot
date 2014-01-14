@@ -305,18 +305,12 @@ sub reply {
     }
     $self->{nt}->update(decode_utf8($body));
   }
-  my $word = $status->{text};
-  $word =~ s/@[a-zA-Z_]+?[ 　]//g;
-  $self->write_talk($word);
-  $self->tm_subscript($word);
 }
 
 sub response {
   my $self = shift;
   my $word = shift;
   my $r = $self->{nt}->mentions();
-  #my $statuses = $r->{'statuses'};
-  print Dumper @$r;
   for my $status (@$r) {
     my $neco = $status->{text};
     if ($self->tw_unchecked('f', $status)) {
@@ -333,9 +327,14 @@ sub subscript {
   for my $status (@$statuses) {
     if ($self->tw_unchecked('f', $status)) {
       if ($self->tw_suitable($status->{text})) {
-        $self->reply($status);
-        if (2 == int(rand(18))) {
-          $self->{nt}->create_favorite($status->{id});
+        my $word = $status->{text};
+        $word =~ s/@[a-zA-Z_]+?[ 　]//g;
+        $self->write_talk($word);
+        $self->tm_subscript($word);
+        if ($status->{user}{screen_name} ne 'team061') {
+          if (2 == int(rand(12))) {
+            $self->{nt}->create_favorite($status->{id});
+          }
         }
       }
       $self->tw_check('f', $status->{id_str});
