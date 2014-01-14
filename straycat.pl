@@ -38,13 +38,13 @@ $neco->init();
 
 print $rand . "\n";
 
-sleep int rand(10);
-print 'subscript' . "\n";
-$neco->subscript();
-
 sleep int rand(2);
 print 'response' . "\n";
 $neco->response();
+
+sleep int rand(10);
+print 'subscript' . "\n";
+$neco->subscript();
 
 if (0 == $rand % 2) {
 
