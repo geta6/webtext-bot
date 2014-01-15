@@ -26,7 +26,8 @@ sub new {
     consumer_key => $argv->{consumer_key},
     consumer_secret => $argv->{consumer_secret},
     access_token => $argv->{token},
-    access_token_secret => $argv->{token_secret}
+    access_token_secret => $argv->{token_secret},
+    ssl => 1
   );
 
   return bless {
